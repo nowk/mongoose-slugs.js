@@ -1,0 +1,33 @@
+{
+  "name": "mongoose-slugs",
+  "version": "0.0.0",
+  "description": "Mongoose slug generator middleware",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:nowk/mongoose-slugs.js.git"
+  },
+  "keywords": [
+    "mongoose",
+    "slugs",
+    "pretty",
+    "url"
+  ],
+  "author": "Yung Hwa Kwon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nowk/mongoose-slugs.js/issues"
+  },
+  "homepage": "https://github.com/nowk/mongoose-slugs.js",
+  "dependencies": {
+    "mongoose": "*"
+  },
+  "devDependencies": {
+    "async": "^0.9.0",
+    "chai": "^1.9.1",
+    "mocha": "^1.20.1"
+  }
+}
