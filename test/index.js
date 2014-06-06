@@ -148,6 +148,26 @@ describe("mongoose-slugs", function() {
       });
     });
   });
+
+  describe('creating slugs from multiple fields', function() {
+    it("creates the slug in the order of the array", function(done) {
+      var postschema = mongoose.Schema({
+        title: {type: String, required: true},
+        id_first: {type: String, required: true},
+        title_first: {type: String, required: true}
+      });
+      postschema
+        .pre('validate', generateSlug('Post', ['_id', 'title'], 'id_first'))
+        .pre('validate', generateSlug('Post', ['title', '_id'], 'title_first'));
+      var Post = mongoose.model('Post', postschema);
+
+      Post.create({title: 'A post title'}, function(err, resource) {
+        assert.equal(resource.id_first, resource._id+"-a-post-title");
+        assert.equal(resource.title_first, "a-post-title-"+resource._id);
+        done();
+      });
+    });
+  });
 });
 
 /*

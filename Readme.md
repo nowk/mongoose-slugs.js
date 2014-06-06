@@ -29,6 +29,19 @@ Gives you:
       // resource.slug => 'a-blog-title';
     });
 
+---
+
+You can combine multiple fields
+
+    postschema
+      .pre('validate', generateSlug('Post', ['_id', 'title'], 'title_slug'));
+
+Gives you:
+
+    Post.create({title: 'A blog title'}, function(err, resource) {
+      // resource.slug => '53913c7aed8b8d23273639cd-a-blog-title';
+    });
+
 ## License
 
 MIT

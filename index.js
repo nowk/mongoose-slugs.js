@@ -25,7 +25,7 @@ module.exports = function(modelName, sluggable, dest, opts) {
     } else {
       var string = (this[dest] && destModified) ?
         this[dest] :
-        this[sluggable];
+        sluggableString.call(this, sluggable);
 
       this[dest] = toSlug(string);
     }
@@ -58,11 +58,23 @@ module.exports = function(modelName, sluggable, dest, opts) {
 /*
  * field has been modified
  *
- * @param {String} fieldName
+ * @param {String|Array} fieldName
  * @return {Boolean}
  */
 
 function isModifield(fieldName) {
+  if (fieldName instanceof Array) {
+    var self = this;
+    var i = 0;
+    var len = fieldName.length;
+    for(; i<len; i++) {
+      if (isModifield.call(self, fieldName[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   return this.modifiedPaths().indexOf(fieldName) >= 0;
 }
 
@@ -76,3 +88,22 @@ function isModifield(fieldName) {
 function toSlug(str) {
   return str.toLowerCase().replace(/[^\w]/g, '-');
 }
+
+/*
+ * return the sluggable(s)
+ *
+ * @param {String|Array} fieldName
+ * @return {String}
+ */
+
+function sluggableString(fieldName) {
+  if (fieldName instanceof Array) {
+    var self = this;
+    return fieldName.map(function(f) {
+      return self[f];
+    }).join("-");
+  }
+
+  return this[fieldName];
+}
+
