@@ -11,6 +11,7 @@ Middleware to generate slugs
 
 ## Usage
 
+    var mongoose = require('mongoose');
     var generateSlug = require('mongoose-slugs');
 
     var postschema = mongoose.Schema({
@@ -26,7 +27,7 @@ Middleware to generate slugs
 Gives you:
 
     Post.create({title: 'A blog title'}, function(err, resource) {
-      // resource.slug => 'a-blog-title';
+      // resource.title_slug => 'a-blog-title';
     });
 
 ---
@@ -39,7 +40,7 @@ You can combine multiple fields
 Gives you:
 
     Post.create({title: 'A blog title'}, function(err, resource) {
-      // resource.slug => '53913c7aed8b8d23273639cd-a-blog-title';
+      // resource.title_slug => '53913c7aed8b8d23273639cd-a-blog-title';
     });
 
 ## License
