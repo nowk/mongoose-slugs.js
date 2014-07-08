@@ -81,7 +81,7 @@ function isModifield(fieldName) {
     return false;
   }
 
-  return this.modifiedPaths().indexOf(fieldName) >= 0;
+  return ~this.modifiedPaths().indexOf(fieldName);
 }
 
 /*
