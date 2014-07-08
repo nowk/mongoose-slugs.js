@@ -15,6 +15,7 @@ var mongoose = require('mongoose');
 module.exports = function(modelName, sluggable, dest, opts) {
   opts = opts || {};
   var invalidateOnDuplicate = opts.invalidateOnDuplicate || false;
+  var allowDuplication = opts.allowDuplication || false;
 
   return function generateSlug(next, done) {
     var sluggableModified = isModifield.call(this, sluggable);
@@ -28,6 +29,10 @@ module.exports = function(modelName, sluggable, dest, opts) {
         sluggableString.call(this, sluggable);
 
       this[dest] = toSlug(string);
+    }
+
+    if (allowDuplication) {
+      return next();
     }
 
     // check uniqueness

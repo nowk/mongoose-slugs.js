@@ -149,6 +149,21 @@ describe("mongoose-slugs", function() {
     });
   });
 
+  it("allows slug duplication", function(done) {
+    var opts = {allowDuplication: true};
+    schema.pre('validate', generateSlug('Product', 'name', 'slug', opts));
+    var Product = mongoose.model('Product', schema);
+
+    async.series([
+      factory(Product, {name: 'A product name'}),
+      factory(Product, {name: 'A Product name'})
+    ], function(err, resources) {
+      assert.equal(resources[0].slug, 'a-product-name');
+      assert.equal(resources[1].slug, 'a-product-name');
+      done();
+    });
+  });
+
   describe('creating slugs from multiple fields', function() {
     it("creates the slug in the order of the array", function(done) {
       var postschema = mongoose.Schema({
