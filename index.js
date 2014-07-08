@@ -61,7 +61,7 @@ module.exports = function(modelName, sluggable, dest, opts) {
 };
 
 /*
- * field has been modified
+ * isModifield returns boolean based on whether the field(s) have been modified
  *
  * @param {String|Array} fieldName
  * @return {Boolean}
@@ -84,7 +84,7 @@ function isModifield(fieldName) {
 }
 
 /*
- * parse string to slug
+ * toSlug removes non-word characters and replaces with a - (hyphen)
  *
  * @param {String} str
  * @return {String}
@@ -95,7 +95,7 @@ function toSlug(str) {
 }
 
 /*
- * return the sluggable(s)
+ * sluggableString returns the string to be slugged from one ore more fields
  *
  * @param {String|Array} fieldName
  * @return {String}
