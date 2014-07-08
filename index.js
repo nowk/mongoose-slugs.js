@@ -14,51 +14,61 @@ var mongoose = require('mongoose');
 
 module.exports = function(modelName, sluggable, dest, opts) {
   opts = opts || {};
-  var invalidateOnDuplicate = opts.invalidateOnDuplicate || false;
-  var allowDuplication = opts.allowDuplication || false;
 
   return function generateSlug(next, done) {
-    var sluggableModified = isModifield.call(this, sluggable);
     var destModified = isModifield.call(this, dest);
 
-    if (!sluggableModified && !destModified) { // no changes, just move on
+    if (!isModifield.call(this, sluggable) && !destModified) { // no changes, just move on
       return next();
-    } else {
-      var string = (this[dest] && destModified) ?
-        this[dest] :
-        sluggableString.call(this, sluggable);
-
-      this[dest] = toSlug(string);
     }
 
-    if (allowDuplication) {
+    var string;
+    if (destModified) {
+      string = this[dest]; // "slug" has been manually defined
+    } else {
+      string = sluggableString.call(this, sluggable);
+    }
+
+    this[dest] = toSlug(string);
+
+    // allow duplication
+    if (opts.allowDuplication) {
       return next();
     }
 
     // check uniqueness
     var self = this;
-    var regex = new RegExp("^"+this[dest]+"(\\-\\d+)?$", 'ig');
-    var cond = {_id: {$ne: this._id}};
-    cond[dest] = regex;
-
-    mongoose.models[modelName]
-      .count(cond, function(err, count) {
-        if (err) {
-          return done(err);
+    dupCount.call(this, modelName, dest, function(err, count) {
+      if (err) {
+        return done(err);
+      }
+      if (count > 0) {
+        if (opts.invalidateOnDuplicate) {
+          self.invalidate(dest, 'is already taken');
+        } else {
+          self[dest] = self[dest]+"-"+count;
         }
-
-        if (count > 0) {
-          if (invalidateOnDuplicate) {
-            self.invalidate(dest, 'is already taken');
-          } else {
-            self[dest] = self[dest]+"-"+count;
-          }
-        }
-
-        next();
-      });
+      }
+      next();
+    });
   };
 };
+
+/*
+ * dupCount queries for duplication and returns err, count
+ *
+ * @param {String} modelName
+ * @param {String} dest
+ * @param {Function} callback
+ * @api private
+ */
+
+function dupCount(modelName, dest, callback) {
+  var regex = new RegExp("^"+this[dest]+"(\\-\\d+)?$", 'ig');
+  var cond = {_id: {$ne: this._id}};
+  cond[dest] = regex;
+  mongoose.models[modelName].count(cond, callback);
+}
 
 /*
  * isModifield returns boolean based on whether the field(s) have been modified
