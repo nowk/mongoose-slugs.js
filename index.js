@@ -103,13 +103,12 @@ function toSlug(str) {
  */
 
 function sluggableString(fieldName) {
-  if (fieldName instanceof Array) {
-    var self = this;
-    return fieldName.map(function(f) {
-      return self[f];
-    }).join("-");
+  if ("string" === typeof fieldName) {
+    fieldName = [fieldName];
   }
-
-  return this[fieldName];
+  var self = this;
+  return fieldName.map(function(f) {
+    return self[f];
+  }).join(" ").trim();
 }
 

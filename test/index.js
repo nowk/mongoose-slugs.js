@@ -182,6 +182,26 @@ describe("mongoose-slugs", function() {
         done();
       });
     });
+
+    it("removes hanging - when one of the fields happen to be blank/null", function(done) {
+      var postschema = mongoose.Schema({
+        a: {type: String},
+        b: {type: String},
+        pre_blank: {type: String, required: true},
+        post_blank: {type: String, required: true}
+      });
+      postschema
+        .pre('validate', generateSlug('Post', ['a', 'b'], 'pre_blank'))
+        .pre('validate', generateSlug('Post', ['b', 'a'], 'post_blank'));
+      var Post = mongoose.model('Post', postschema);
+
+      Post
+        .create({a: 'a'}, function(err, resource) {
+          assert.equal(resource.pre_blank, "a");
+          assert.equal(resource.post_blank, "a");
+          done();
+        });
+    });
   });
 });
 
