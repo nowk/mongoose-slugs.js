@@ -1,6 +1,6 @@
 {
   "name": "mongoose-slugs",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Mongoose slug generator middleware",
   "main": "index.js",
   "scripts": {
