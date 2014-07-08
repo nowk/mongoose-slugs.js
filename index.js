@@ -68,6 +68,7 @@ module.exports = function(modelName, sluggable, dest, opts) {
  */
 
 function isModifield(fieldName) {
+  // recurse for an array of fields
   if (fieldName instanceof Array) {
     var self = this;
     var i = 0;
