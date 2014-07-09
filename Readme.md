@@ -43,6 +43,19 @@ Gives you:
       // resource.title_slug => '53913c7aed8b8d23273639cd-a-blog-title';
     });
 
+---
+
+You can run uniqueness validation with a scope
+
+    postschema
+      .pre('validate', generateSlug('Post', ['title'], 'title_slug'), {
+        scope: function() {
+          return {creator: this.creator}
+        }
+      });
+
+This will run the validation with that condition included. The `scope` function will be run within the context of your model `this`.
+
 ## License
 
 MIT

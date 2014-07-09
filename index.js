@@ -1,6 +1,7 @@
 /* jshint node: true */
 
 var mongoose = require('mongoose');
+var extend = require("node.extend");
 
 /*
  * slug generator
@@ -38,7 +39,7 @@ module.exports = function(modelName, sluggable, dest, opts) {
 
     // check uniqueness
     var self = this;
-    dupCount.call(this, modelName, dest, function(err, count) {
+    dupCount.call(this, modelName, dest, opts.scope, function(err, count) {
       if (err) {
         return done(err);
       }
@@ -59,15 +60,20 @@ module.exports = function(modelName, sluggable, dest, opts) {
  *
  * @param {String} modelName
  * @param {String} dest
+ * @param {Function} scope
  * @param {Function} callback
  * @api private
  */
 
-function dupCount(modelName, dest, callback) {
+function dupCount(modelName, dest, scope, callback) {
+  scope = scope || function() {
+    return {};
+  };
+
   var regex = new RegExp("^"+this[dest]+"(\\-\\d+)?$", 'ig');
   var cond = {_id: {$ne: this._id}};
   cond[dest] = regex;
-  mongoose.models[modelName].count(cond, callback);
+  mongoose.models[modelName].count(extend(true, cond, scope.call(this)), callback);
 }
 
 /*

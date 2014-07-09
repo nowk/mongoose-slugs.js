@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/nowk/mongoose-slugs.js",
   "dependencies": {
-    "mongoose": "*"
+    "mongoose": "*",
+    "node.extend": "^1.0.10"
   },
   "devDependencies": {
     "async": "^0.9.0",

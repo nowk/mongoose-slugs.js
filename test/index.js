@@ -7,6 +7,7 @@ var generateSlug = require('..');
 
 describe("mongoose-slugs", function() {
   var schema;
+  var User;
 
   before(function(done) {
     mongoose.connect("mongodb://127.0.0.1:27017/mongoose_slugs_test");
@@ -18,6 +19,7 @@ describe("mongoose-slugs", function() {
   });
 
   beforeEach(function() {
+    User = mongoose.model("User", mongoose.Schema({}));
     schema = mongoose.Schema({
       name: {type: String, required: true},
       slug: {type: String, required: true}
@@ -31,7 +33,7 @@ describe("mongoose-slugs", function() {
     models.forEach(function(m) {
       var model = mongoose.models[m];
       model.remove({}, function(err) {
-        if (i<len) {
+        if (i<len-1) {
           mongoose.models = {};
           done();
         }
@@ -164,6 +166,37 @@ describe("mongoose-slugs", function() {
     });
   });
 
+  it("can validate uniqueness with scope", function(done) {
+    var postschema = mongoose.Schema({
+      user: {type: mongoose.Schema.ObjectId, ref: "User"},
+      title: {type: String},
+      slug: {type: String, required: true}
+    });
+    postschema.pre("validate", generateSlug("Post", "title", "slug", {
+      scope: function() {
+        return {user: this.user};
+      }
+    }));
+    var Post = mongoose.model("Post", postschema);
+
+    async.series([
+      factory(User, {}),
+      factory(User, {})
+    ], function(err, resources) {
+      var usera = resources[0];
+      var userb = resources[1];
+
+      async.series([
+        factory(Post, {title: "I'm scoped", user: usera.id}),
+        factory(Post, {title: "I'm scoped", user: userb.id})
+      ], function(err, resources) {
+        assert(!err);
+        assert.equal(resources[0].slug, resources[1].slug);
+        done();
+      });
+    });
+  });
+
   describe('creating slugs from multiple fields', function() {
     it("creates the slug in the order of the array", function(done) {
       var postschema = mongoose.Schema({
@@ -202,6 +235,25 @@ describe("mongoose-slugs", function() {
           done();
         });
     });
+  });
+
+  it.skip("creates a slug from a virtual", function(done) {
+    var postschema = mongoose.Schema({
+      slug: {type: String, required: true}
+    });
+    postschema.virtual("name")
+      .get(function() {
+        return "foo bar";
+      });
+    postschema
+      .pre('validate', generateSlug('Post', "name", 'slug'));
+    var Post = mongoose.model('Post', postschema);
+
+    Post
+      .create({}, function(err, resource) {
+        assert.equal(resource.slug, "foo-bar");
+        done();
+      });
   });
 });
 
